@@ -12,6 +12,6 @@ Put the weights file into the "darkpy" folder
 
 
 Create coco.data in darkypy folder as follow :
-classes= 9000
-names = YOUR PATH/TrackingVideo/TrackingVideoYOLO/darkpy/9k.names
+classes= 80
+names = YOUR PATH/TrackingVideo/TrackingVideoYOLO/darkpy/coco.names
 eval=coco
