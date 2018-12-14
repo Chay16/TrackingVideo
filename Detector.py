@@ -29,7 +29,7 @@ class YoloTorch:
 
         img = self.preprocess(img)
         with torch.no_grad():
-            dets = self.model(img, self.CUDA)
+            dets = self.model(img)
 
         res = write_results(dets, self.Td, self.nb_c, nms=True, nms_conf=self.Tnms)
         detection = []
