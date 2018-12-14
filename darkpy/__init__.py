@@ -6,8 +6,7 @@ resource_package = __name__
 lib_file = pkg_resources.resource_stream(resource_package, 'libdarknet.so').name
 
 
-
-weights_file = "../YOLO weights/yolov3.weights"
+config_file = pkg_resources.resource_stream(resource_package, "yolov3_416.cfg").name
 meta_file = pkg_resources.resource_stream(resource_package, 'coco.data').name
 
 def c_array(ctype, values):
@@ -165,7 +164,7 @@ class Yolo:
         Darknet metadata file (.data) describing the liste of classes and other metadata.
     """
 
-    def __init__(self, cfg_file, weights=weights_file, meta=meta_file):
+    def __init__(self, weights, cfg_file=config_file, meta=meta_file):
         cfg_file = cfg_file.encode('utf-8')
         weights_file = weights.encode('utf-8')
         meta_file = meta.encode('utf-8')
