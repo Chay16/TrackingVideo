@@ -4,10 +4,12 @@ from darknet import Darknet
 import cv2 
 import numpy as np
 from util import load_classes,write_results
+
+
 class YoloTorch:
     def __init__(self,cfgfile="darknet/cfg/yolov3.cfg",weightsfile="../YOLO weights/yolov3.weights",reso="416",confidence = 0.5,nms_thesh = 0.4):
         self.CUDA = torch.cuda.is_available()
-        self.classes = load_classes('data/coco.names') 
+        self.classes = load_classes('darknet/data/coco.names')
         self.nb_c=len(self.classes)
         self.Td=confidence
         self.Tnms=nms_thesh
@@ -23,6 +25,7 @@ class YoloTorch:
         if self.CUDA:
             self.model.cuda()
         self.model.eval()
+
     def preprocess(self,img):
         img = cv2.resize(img, (self.inp_dim, self.inp_dim)) 
         img_ =  img[:,:,::-1].transpose((2,0,1))
@@ -32,6 +35,7 @@ class YoloTorch:
         if self.CUDA:
             img_ = img_.cuda()
         return img_
+
     def predict(self,img):
         img=self.preprocess(img)
         with torch.no_grad():
