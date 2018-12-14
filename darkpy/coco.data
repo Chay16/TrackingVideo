@@ -1,4 +1,4 @@
 classes= 80
-names = darkpy/coco.names
+names = /Users/Chayan/Desktop/TrackingVideo/TrackingVideoYOLO/darkpy/coco.names
 eval=coco
 

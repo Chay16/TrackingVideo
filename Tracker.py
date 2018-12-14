@@ -6,6 +6,8 @@ from darkpy import Yolo
 
 ####################### Global Variables #############################
 
+#os.chdir('/Users/Chayan/Desktop/TrackingVideo/TrackingVideoYOLO')
+original_path = os.getcwd()
 path = "Sequences/"
 os.chdir(path)
 
@@ -106,13 +108,26 @@ video_name_gt = folder.split("/")[0]+"_groundtruth"
 video_name_predict = folder.split("/")[0]+"predict"
 
 video_gt = init_video(video_name_gt,width,height)
+video_predict = init_video(video_name_predict,width,height)
 
-for i in tq(range(len(frames))):
+#for i in tq(range(len(frames))):
+for i in [0]:
     frame_gt = cv2.imread(frames[i])
+    frame_predict = cv2.imread(frames[i])
+
+    # Ground Truth
     mask = cv2.imread(masks[i])
     corner1_gt,corner3_gt = getBBox_Mask(mask)
     cv2.rectangle(frame_gt,corner1_gt,corner3_gt,(0,255,0),2)
-
     video_gt.write(frame_gt)
 
+    # YOLO Prediction
+    detection = detector.detect(frame_predict)
+    for i in detection:
+        draw_BBox(frame_predict,list(map(int,i[0])))
+        video_predict.write(frame_predict)
+
 close_video_writer(video_gt)
+close_video_writer(video_predict)
+
+os.chdir(original_path)

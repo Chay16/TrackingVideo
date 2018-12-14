@@ -6,7 +6,7 @@ resource_package = __name__
 lib_file = pkg_resources.resource_stream(resource_package, 'libdarknet.so').name
 config_file = pkg_resources.resource_stream(resource_package, "yolov3_416.cfg").name
 weights_file = pkg_resources.resource_stream(resource_package, "yolov3.weights").name
-meta_file = pkg_resources.resource_stream(resource_package, 'coco.data').name
+meta_file = pkg_resources.resource_stream(resource_package, "coco.data").name
 
 def c_array(ctype, values):
     arr = (ctype * len(values))()
