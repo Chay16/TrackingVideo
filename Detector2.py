@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 from util import load_classes,write_results
 class YoloTorch:
-    def __init__(self,cfgfile="cfg/yolov3.cfg",weightsfile="yolov3.weights",reso="416",confidence = 0.5,nms_thesh = 0.4):
+    def __init__(self,cfgfile="darknet/cfg/yolov3.cfg",weightsfile="../YOLO weights/yolov3.weights",reso="416",confidence = 0.5,nms_thesh = 0.4):
         self.CUDA = torch.cuda.is_available()
         self.classes = load_classes('data/coco.names') 
         self.nb_c=len(self.classes)
