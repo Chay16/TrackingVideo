@@ -5,9 +5,7 @@ Repository for tracking an object in a video
 Need to install libraries with :
 pip install -t requirements.txt
 
-Create a folder named "YOLO weights" at the same level as "TrackingVideo YOLO" folder
-
 Need to download the weights of the YOLO model with :
 wget https://pjreddie.com/media/files/yolov3.weights_
 
-Put the weights file into the "YOLO weights" folder
+Put the weights file into the "darkpy" folder

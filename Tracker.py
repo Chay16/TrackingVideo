@@ -97,8 +97,7 @@ def close_video_writer(video):
 ########################## Main ##################################
 
 folder = "camel/"
-weights_file = "../YOLO weights/yolov3.weights"
-detector = Yolo(weights_file)
+detector = Yolo()
 
 frames = getFrames(folder)
 masks  = getMasks(folder)
