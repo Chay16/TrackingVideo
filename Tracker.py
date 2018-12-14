@@ -2,7 +2,7 @@ import cv2
 import os
 import numpy as np
 from tqdm import tqdm as tq
-
+from darkpy import Yolo
 
 ####################### Global Variables #############################
 
@@ -53,6 +53,19 @@ def getBBox_Mask(mask):
     corner3 = (max(ind[1]), max(ind[0]))
     return corner1, corner3
 
+
+def draw_BBox(frame,bbox):
+    """
+
+    :param frame: frame viewed as matrice
+    :param bbox: bounding box XY coordinates, witdh, height
+    :return: frame with the bouding box plot on it
+    """
+
+    x,y,w,h = bbox
+    cv2.rectangle(frame, (x-w//2,y-h//2), (x+w//2,y+h//2), (0,255,0), 2)
+    return frame
+
 ######################## Video functions #############################
 
 def init_video(video_name, width, height):
@@ -84,6 +97,8 @@ def close_video_writer(video):
 ########################## Main ##################################
 
 folder = "camel/"
+weights_file = "../YOLO weights/yolov3.weights"
+detector = Yolo(weights_file)
 
 frames = getFrames(folder)
 masks  = getMasks(folder)
