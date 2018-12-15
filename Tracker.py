@@ -116,35 +116,35 @@ folders = getFolderNames()
 folder = "swan/"
 detector = Yolo()
 
-for folder in folders:
+#for folder in folders:
 
-    frames = getFrames(folder)
-    masks  = getMasks(folder)
-    height, width, channel = cv2.imread(frames[0]).shape
-    video_name_gt = folder.split("/")[0]+"_groundtruth"
-    video_name_predict = folder.split("/")[0]+"predict"
+frames = getFrames(folder)
+masks  = getMasks(folder)
+height, width, channel = cv2.imread(frames[0]).shape
+video_name_gt = folder.split("/")[0]+"_groundtruth"
+video_name_predict = folder.split("/")[0]+"predict"
 
-    video_gt = init_video(video_name_gt,width,height)
-    video_predict = init_video(video_name_predict,width,height)
+video_gt = init_video(video_name_gt,width,height)
+video_predict = init_video(video_name_predict,width,height)
 
-    #for i in tq(range(len(frames))):
-    for i in [0]:
-        frame_gt = cv2.imread(frames[i])
-        frame_predict = cv2.imread(frames[i])
+#for i in tq(range(len(frames))):
+for i in [0]:
+    frame_gt = cv2.imread(frames[i])
+    frame_predict = cv2.imread(frames[i])
 
-        # Ground Truth
-        mask = cv2.imread(masks[i])
-        corner1_gt,corner3_gt = getBBox_Mask(mask)
-        cv2.rectangle(frame_gt,corner1_gt,corner3_gt,(0,255,0),2)
-        video_gt.write(frame_gt)
+    # Ground Truth
+    mask = cv2.imread(masks[i])
+    corner1_gt,corner3_gt = getBBox_Mask(mask)
+    cv2.rectangle(frame_gt,corner1_gt,corner3_gt,(0,255,0),2)
+    video_gt.write(frame_gt)
 
-        # YOLO Prediction
-        detection = detector.detect(frame_predict)
-        for i in detection:
-            draw_BBox(frame_predict,list(map(int,i[0])))
-            video_predict.write(frame_predict)
-        print(i)
-    close_video_writer(video_gt)
-    close_video_writer(video_predict)
+    # YOLO Prediction
+    detection = detector.detect(frame_predict)
+    for i in detection:
+        draw_BBox(frame_predict,list(map(int,i[0])))
+        video_predict.write(frame_predict)
+    print(i)
+close_video_writer(video_gt)
+close_video_writer(video_predict)
 
 os.chdir(original_path)

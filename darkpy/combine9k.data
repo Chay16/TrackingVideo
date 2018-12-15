@@ -1,0 +1,7 @@
+classes= 9418
+labels = /Users/Chayan/Desktop/TrackingVideo/TrackingVideoYOLO/darkpy/data/9k.labels
+names  = /Users/Chayan/Desktop/TrackingVideo/TrackingVideoYOLO/darkpy/data/9k.names
+backup = /Users/Chayan/Desktop/TrackingVideo/TrackingVideoYOLO/backup/
+map = /Users/Chayan/Desktop/TrackingVideo/TrackingVideoYOLO/darknet/data/inet9k.map
+eval = imagenet
+results = results

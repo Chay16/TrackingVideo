@@ -4,9 +4,14 @@ import numpy as np
 
 resource_package = __name__
 lib_file = pkg_resources.resource_stream(resource_package, 'libdarknet.so').name
-config_file = pkg_resources.resource_stream(resource_package, "yolov3_416.cfg").name
+
+config_file_classic = pkg_resources.resource_stream(resource_package, "yolov3_416.cfg").name
+config_file_9000 = pkg_resources.resource_stream(resource_package, "yolo9000.cfg").name
+
 weights_file = pkg_resources.resource_stream(resource_package, "yolov3.weights").name
-meta_file = pkg_resources.resource_stream(resource_package, "coco.data").name
+
+meta_file_classic = pkg_resources.resource_stream(resource_package, "coco.data").name
+meta_file_9000 = pkg_resources.resource_stream(resource_package, "combine9k.data").name
 
 def c_array(ctype, values):
     arr = (ctype * len(values))()
@@ -163,7 +168,7 @@ class Yolo:
         Darknet metadata file (.data) describing the liste of classes and other metadata.
     """
 
-    def __init__(self, cfg_file=config_file, weights=weights_file, meta=meta_file):
+    def __init__(self, cfg_file=config_file_classic, weights=weights_file, meta=meta_file_classic):
         cfg_file = cfg_file.encode('utf-8')
         weights_file = weights.encode('utf-8')
         meta_file = meta.encode('utf-8')
