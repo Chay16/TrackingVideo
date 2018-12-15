@@ -13,6 +13,19 @@ os.chdir(path)
 
 ################### Basic uselful functions ##########################
 
+def getFolderNames():
+    """
+
+    :return: list of the folder path containing the sequences
+    """
+
+    folders = []
+    for file in os.listdir(os.getcwd()):
+        if os.path.isdir(file):
+            folders.append(file+"/")
+    return folders
+
+
 def getFrames(folder):
     """
 
@@ -98,36 +111,40 @@ def close_video_writer(video):
 
 ########################## Main ##################################
 
-folder = "camel/"
+folders = getFolderNames()
+
+folder = "swan/"
 detector = Yolo()
 
-frames = getFrames(folder)
-masks  = getMasks(folder)
-height, width, channel = cv2.imread(frames[0]).shape
-video_name_gt = folder.split("/")[0]+"_groundtruth"
-video_name_predict = folder.split("/")[0]+"predict"
+for folder in folders:
 
-video_gt = init_video(video_name_gt,width,height)
-video_predict = init_video(video_name_predict,width,height)
+    frames = getFrames(folder)
+    masks  = getMasks(folder)
+    height, width, channel = cv2.imread(frames[0]).shape
+    video_name_gt = folder.split("/")[0]+"_groundtruth"
+    video_name_predict = folder.split("/")[0]+"predict"
 
-#for i in tq(range(len(frames))):
-for i in [0]:
-    frame_gt = cv2.imread(frames[i])
-    frame_predict = cv2.imread(frames[i])
+    video_gt = init_video(video_name_gt,width,height)
+    video_predict = init_video(video_name_predict,width,height)
 
-    # Ground Truth
-    mask = cv2.imread(masks[i])
-    corner1_gt,corner3_gt = getBBox_Mask(mask)
-    cv2.rectangle(frame_gt,corner1_gt,corner3_gt,(0,255,0),2)
-    video_gt.write(frame_gt)
+    #for i in tq(range(len(frames))):
+    for i in [0]:
+        frame_gt = cv2.imread(frames[i])
+        frame_predict = cv2.imread(frames[i])
 
-    # YOLO Prediction
-    detection = detector.detect(frame_predict)
-    for i in detection:
-        draw_BBox(frame_predict,list(map(int,i[0])))
-        video_predict.write(frame_predict)
+        # Ground Truth
+        mask = cv2.imread(masks[i])
+        corner1_gt,corner3_gt = getBBox_Mask(mask)
+        cv2.rectangle(frame_gt,corner1_gt,corner3_gt,(0,255,0),2)
+        video_gt.write(frame_gt)
 
-close_video_writer(video_gt)
-close_video_writer(video_predict)
+        # YOLO Prediction
+        detection = detector.detect(frame_predict)
+        for i in detection:
+            draw_BBox(frame_predict,list(map(int,i[0])))
+            video_predict.write(frame_predict)
+        print(i)
+    close_video_writer(video_gt)
+    close_video_writer(video_predict)
 
 os.chdir(original_path)

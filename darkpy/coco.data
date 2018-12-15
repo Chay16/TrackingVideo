@@ -1,4 +1,3 @@
 classes= 80
 names = /Users/Chayan/Desktop/TrackingVideo/TrackingVideoYOLO/darkpy/coco.names
 eval=coco
-
