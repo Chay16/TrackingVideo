@@ -81,6 +81,8 @@ def draw_BBox(frame,bbox):
     cv2.rectangle(frame, (x-w//2,y-h//2), (x+w//2,y+h//2), (0,255,0), 2)
     return frame
 
+def getCentroid()
+
 ######################## Video functions #############################
 
 def init_video(video_name, width, height):
@@ -113,11 +115,11 @@ def close_video_writer(video):
 
 folders = getFolderNames()
 
-folder = "swan/"
+folder = "camel /"
 detector = Yolo()
 
 #for folder in folders:
-
+#    print(folder)
 frames = getFrames(folder)
 masks  = getMasks(folder)
 height, width, channel = cv2.imread(frames[0]).shape
@@ -127,8 +129,8 @@ video_name_predict = folder.split("/")[0]+"predict"
 video_gt = init_video(video_name_gt,width,height)
 video_predict = init_video(video_name_predict,width,height)
 
-#for i in tq(range(len(frames))):
-for i in [0]:
+for i in tq(range(len(frames))):
+#for i in [0]:
     frame_gt = cv2.imread(frames[i])
     frame_predict = cv2.imread(frames[i])
 
@@ -142,8 +144,9 @@ for i in [0]:
     detection = detector.detect(frame_predict)
     for i in detection:
         draw_BBox(frame_predict,list(map(int,i[0])))
-        video_predict.write(frame_predict)
-    print(i)
+        print(i)
+    video_predict.write(frame_predict)
+
 close_video_writer(video_gt)
 close_video_writer(video_predict)
 

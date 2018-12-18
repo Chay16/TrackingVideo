@@ -8,7 +8,8 @@ lib_file = pkg_resources.resource_stream(resource_package, 'libdarknet.so').name
 config_file_classic = pkg_resources.resource_stream(resource_package, "yolov3_416.cfg").name
 config_file_9000 = pkg_resources.resource_stream(resource_package, "yolo9000.cfg").name
 
-weights_file = pkg_resources.resource_stream(resource_package, "yolov3.weights").name
+weights_file_classic = pkg_resources.resource_stream(resource_package, "yolov3.weights").name
+weights_file_9000 = pkg_resources.resource_stream(resource_package, "yolo9000.weights").name
 
 meta_file_classic = pkg_resources.resource_stream(resource_package, "coco.data").name
 meta_file_9000 = pkg_resources.resource_stream(resource_package, "combine9k.data").name
@@ -168,7 +169,7 @@ class Yolo:
         Darknet metadata file (.data) describing the liste of classes and other metadata.
     """
 
-    def __init__(self, cfg_file=config_file_classic, weights=weights_file, meta=meta_file_classic):
+    def __init__(self, cfg_file=config_file_9000, weights=weights_file_9000, meta=meta_file_9000):
         cfg_file = cfg_file.encode('utf-8')
         weights_file = weights.encode('utf-8')
         meta_file = meta.encode('utf-8')
@@ -176,9 +177,9 @@ class Yolo:
         self.net = load_net(cfg_file, weights_file, 0)
         self.meta = load_meta(meta_file)
 
-    def detect(self, image):
+    def detect(self, image,thres = 0.2):
 
-        out = detect_np(self.net, self.meta, image)
+        out = detect_np(self.net, self.meta, image,thres)
         dets=[]
         for e in out:
             d = list(e)
