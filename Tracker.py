@@ -3,6 +3,7 @@ import os
 import numpy as np
 from tqdm import tqdm as tq
 from darkpy import Yolo
+from skimage.measure import regionprops
 
 ####################### Global Variables #############################
 
@@ -81,7 +82,36 @@ def draw_BBox(frame,bbox):
     cv2.rectangle(frame, (x-w//2,y-h//2), (x+w//2,y+h//2), (0,255,0), 2)
     return frame
 
-def getCentroid()
+def centroid_assessment(groundtruth,estimated):
+    a = regionprops(groundtruth)
+    b = regionprops(estimated)
+    return np.linalg.norm(np.array(a[0].centroid)-np.array(b[0].centroid))
+
+
+def evaluate_centroid_dist(gt,predicted):
+    dist = centroid_assessment(gt, predicted)
+    return dist
+
+
+def cornerDistance(previousBBox,currentBBox):
+    xp, yp, wp, hp = previousBBox
+    xc, yc, wc, hc = currentBBox
+    current_corner = ((xc-wc//2,yc-hc//2), (xc+wc//2, yc+hc//2))
+    previous_corner = ((xp-wp//2,yp-hp//2), (xp+wp//2, yp+hp//2))
+    dist = np.sqrt((previous_corner[0][0]-current_corner[0][0])**2+(previous_corner[0][1]-current_corner[0][1])**2+
+                   (previous_corner[1][0]-current_corner[1][0])**2+(previous_corner[1][1]-current_corner[1][1])**2)
+    return dist
+
+
+def BBox_Tuple2List(tple):
+    liste = []
+
+    liste.append([tple[0][0],tple[0][1],tple[1][0] - tple[0][0],tple[1][1] - tple[0][1]])
+    liste.append('')
+    liste.append(0)
+
+    return liste
+
 
 ######################## Video functions #############################
 
@@ -115,13 +145,18 @@ def close_video_writer(video):
 
 folders = getFolderNames()
 
-folder = "camel /"
+folder = "camel/"
 detector = Yolo()
 
 #for folder in folders:
 #    print(folder)
 frames = getFrames(folder)
 masks  = getMasks(folder)
+bbox_previous = getBBox_Mask(cv2.imread(masks[0]))
+print(bbox_previous)
+bbox_previous = BBox_Tuple2List(bbox_previous)
+print("Previous BBox : ",bbox_previous)
+
 height, width, channel = cv2.imread(frames[0]).shape
 video_name_gt = folder.split("/")[0]+"_groundtruth"
 video_name_predict = folder.split("/")[0]+"predict"
@@ -130,7 +165,7 @@ video_gt = init_video(video_name_gt,width,height)
 video_predict = init_video(video_name_predict,width,height)
 
 for i in tq(range(len(frames))):
-#for i in [0]:
+#for i in [0,1,2,3,4,5]:
     frame_gt = cv2.imread(frames[i])
     frame_predict = cv2.imread(frames[i])
 
@@ -141,11 +176,21 @@ for i in tq(range(len(frames))):
     video_gt.write(frame_gt)
 
     # YOLO Prediction
-    detection = detector.detect(frame_predict)
-    for i in detection:
+    detection = detector.detect(frame_predict,0.2)
+
+    detection_kept = detection[0]
+    for i in range(1,len(detection)):
+        if cornerDistance(bbox_previous[0],detection[i][0])<cornerDistance(bbox_previous[0],detection_kept[0]):
+            detection_kept = detection[i]
+
+    print("New Bbox : " ,detection_kept)
+    bbox_previous = detection_kept
+    draw_BBox(frame_predict,list(map(int,detection_kept[0])))
+    video_predict.write(frame_predict)
+    """for i in detection:
         draw_BBox(frame_predict,list(map(int,i[0])))
         print(i)
-    video_predict.write(frame_predict)
+    video_predict.write(frame_predict)"""
 
 close_video_writer(video_gt)
 close_video_writer(video_predict)
