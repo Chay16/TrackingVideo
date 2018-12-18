@@ -94,6 +94,12 @@ def evaluate_centroid_dist(gt,predicted):
 
 
 def cornerDistance(previousBBox,currentBBox):
+    """
+
+    :param previousBBox: XY coordinates, width, height of the previous bounding box
+    :param currentBBox: XY coordinates, width, height of the current bounding box
+    :return: Norm2 between the two bounding boxes
+    """
     xp, yp, wp, hp = previousBBox
     xc, yc, wc, hc = currentBBox
     current_corner = ((xc-wc//2,yc-hc//2), (xc+wc//2, yc+hc//2))
@@ -104,6 +110,12 @@ def cornerDistance(previousBBox,currentBBox):
 
 
 def BBox_Tuple2List(tple):
+    """
+
+    :param tple: tuple
+    :return: the list corresponding to the tuple
+    """
+
     liste = []
 
     liste.append([tple[0][0],tple[0][1],tple[1][0] - tple[0][0],tple[1][1] - tple[0][1]])
