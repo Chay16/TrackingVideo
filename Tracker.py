@@ -4,6 +4,7 @@ import numpy as np
 from tqdm import tqdm as tq
 from darkpy import Yolo
 from skimage.measure import regionprops
+import matplotlib.pyplot as plt
 
 ####################### Global Variables #############################
 
@@ -75,7 +76,7 @@ def draw_BBox(frame,bbox):
 
     :param frame: frame viewed as matrice
     :param bbox: bounding box XY coordinates, witdh, height
-    :return: frame with the bouding box plot on it
+    :return: frame with the bounding box plot on it
     """
 
     x,y,w,h = bbox
@@ -125,6 +126,47 @@ def BBox_Tuple2List(tple):
     return liste
 
 
+def computeWandH(previousBBox,currentBBox,percent=0.05):
+    """
+
+    :param previousBBox: XY coordinates, width, height of the previous bounding box
+    :param currentBBox: XY coordinates, width, height of the current bounding box
+    :param percent: scaling factor max autorised to the new bounding box
+    :return: width and height close to the previous one to avoid the bounding box to quiver
+    """
+    xp, yp, wp, hp = previousBBox
+    xc, yc, wc, hc = currentBBox
+
+    if abs(1-wc/wp) <= percent :
+        width = wp
+    elif 1-wp/wc < 0:
+        width = wp - percent*wp
+    else:
+        width = wp + percent*wp
+
+    if abs(1-hc/hp) <= percent :
+        height = hp
+    elif 1-hp/hc < 0:
+        height = hp - percent*hp
+    else:
+        height = hp + percent*hp
+
+    return width, height
+
+
+def getCentroidMask(corner1,corner3):
+    """
+
+    :param corner1: XY coordinates of the first corner of the bounding box
+    :param corner3: XY coordinates of the third corner of the bounding box
+    :return: XY coordinates of the centroid of the bounding box
+    """
+
+    x1, y1 = corner1
+    x3, y3 = corner3
+    return x1+(abs(x3-x1))//2, y1+(abs(y3-y1))//2
+
+
 ######################## Video functions #############################
 
 def init_video(video_name, width, height):
@@ -158,6 +200,7 @@ def close_video_writer(video):
 folders = getFolderNames()
 
 folder = "camel/"
+score = []
 detector = Yolo()
 
 #for folder in folders:
@@ -165,9 +208,7 @@ detector = Yolo()
 frames = getFrames(folder)
 masks  = getMasks(folder)
 bbox_previous = getBBox_Mask(cv2.imread(masks[0]))
-print(bbox_previous)
 bbox_previous = BBox_Tuple2List(bbox_previous)
-print("Previous BBox : ",bbox_previous)
 
 height, width, channel = cv2.imread(frames[0]).shape
 video_name_gt = folder.split("/")[0]+"_groundtruth"
@@ -178,33 +219,46 @@ video_predict = init_video(video_name_predict,width,height)
 
 for i in tq(range(len(frames))):
 #for i in [0,1,2,3,4,5]:
+    #print("Frame " +str(i+1)+" out of "+str(len([0,1,2,3,4,5])))
     frame_gt = cv2.imread(frames[i])
     frame_predict = cv2.imread(frames[i])
 
     # Ground Truth
     mask = cv2.imread(masks[i])
     corner1_gt,corner3_gt = getBBox_Mask(mask)
+    centroid_gt = getCentroidMask(corner1_gt,corner3_gt)
     cv2.rectangle(frame_gt,corner1_gt,corner3_gt,(0,255,0),2)
     video_gt.write(frame_gt)
 
     # YOLO Prediction
-    detection = detector.detect(frame_predict,0.2)
+    threshold = 0.2
+    detection = detector.detect(frame_predict,threshold)
 
     detection_kept = detection[0]
     for i in range(1,len(detection)):
         if cornerDistance(bbox_previous[0],detection[i][0])<cornerDistance(bbox_previous[0],detection_kept[0]):
             detection_kept = detection[i]
-
-    print("New Bbox : " ,detection_kept)
+        width,height= detection_kept[0][2],detection_kept[0][3]
+        width,height = computeWandH(bbox_previous[0], detection_kept[0], 0.02)
+        detection_kept[0][2], detection_kept[0][3] = width,height
     bbox_previous = detection_kept
     draw_BBox(frame_predict,list(map(int,detection_kept[0])))
     video_predict.write(frame_predict)
-    """for i in detection:
-        draw_BBox(frame_predict,list(map(int,i[0])))
-        print(i)
-    video_predict.write(frame_predict)"""
+    centroid_predict = [detection_kept[0][0], detection_kept[0][1]]
+    score.append(np.linalg.norm(np.array(centroid_gt)-np.array(centroid_predict)))
 
 close_video_writer(video_gt)
 close_video_writer(video_predict)
+
+
+x_axe = range(len(frames))
+plt.figure(figsize=(17, 6))
+plt.plot(x_axe,score,marker='o',color='g')
+plt.ylabel('Score')
+plt.xlabel("Frame")
+plt.grid()
+plt.legend(['Centroid Distance Score'])
+plt.savefig(folder.split("/")[0]+'_CentroidEval.png')
+plt.show()
 
 os.chdir(original_path)
