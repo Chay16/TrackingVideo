@@ -199,67 +199,67 @@ def close_video_writer(video):
 
 folders = getFolderNames()
 
-folder = "rhino/"
+folder = "bag/"
 detector = Yolo()
 
-for folder in folders:
-    print(folder)
-    score = []
-    frames = getFrames(folder)
-    masks  = getMasks(folder)
-    bbox_previous = getBBox_Mask(cv2.imread(masks[0]))
-    bbox_previous = BBox_Tuple2List(bbox_previous)
+#for folder in folders:
+#    print(folder)
+score = []
+frames = getFrames(folder)
+masks  = getMasks(folder)
+bbox_previous = getBBox_Mask(cv2.imread(masks[0]))
+bbox_previous = BBox_Tuple2List(bbox_previous)
 
-    height, width, channel = cv2.imread(frames[0]).shape
-    video_name_gt = folder.split("/")[0]+"_groundtruth"
-    video_name_predict = folder.split("/")[0]+"predict"
+height, width, channel = cv2.imread(frames[0]).shape
+video_name_gt = folder.split("/")[0]+"_groundtruth"
+video_name_predict = folder.split("/")[0]+"predict"
 
-    video_gt = init_video(video_name_gt,width,height)
-    video_predict = init_video(video_name_predict,width,height)
+video_gt = init_video(video_name_gt,width,height)
+video_predict = init_video(video_name_predict,width,height)
 
-    for i in tq(range(len(frames))):
-    #for i in [0,1,2,3,4,5]:
-        #print("Frame " +str(i+1)+" out of "+str(len([0,1,2,3,4,5])))
-        frame_gt = cv2.imread(frames[i])
-        frame_predict = cv2.imread(frames[i])
+for i in tq(range(len(frames))):
+#for i in [0,1,2,3,4,5]:
+    #print("Frame " +str(i+1)+" out of "+str(len([0,1,2,3,4,5])))
+    frame_gt = cv2.imread(frames[i])
+    frame_predict = cv2.imread(frames[i])
 
-        # Ground Truth
-        mask = cv2.imread(masks[i])
-        corner1_gt,corner3_gt = getBBox_Mask(mask)
-        centroid_gt = getCentroidMask(corner1_gt,corner3_gt)
-        cv2.rectangle(frame_gt,corner1_gt,corner3_gt,(0,255,0),2)
-        video_gt.write(frame_gt)
+    # Ground Truth
+    mask = cv2.imread(masks[i])
+    corner1_gt,corner3_gt = getBBox_Mask(mask)
+    centroid_gt = getCentroidMask(corner1_gt,corner3_gt)
+    cv2.rectangle(frame_gt,corner1_gt,corner3_gt,(0,255,0),2)
+    video_gt.write(frame_gt)
 
-        # YOLO Prediction
-        threshold = 0.005
-        detection = detector.detect(frame_predict,threshold)
+    # YOLO Prediction
+    threshold = 0.01  #""" NEEDS TO BE ADJUST FOR EACH VIDEO """
+    detection = detector.detect(frame_predict,threshold)
 
-        detection_kept = detection[0]
-        for i in range(1,len(detection)):
-            if cornerDistance(bbox_previous[0],detection[i][0])<cornerDistance(bbox_previous[0],detection_kept[0]):
-                detection_kept = detection[i]
-            width,height= detection_kept[0][2],detection_kept[0][3]
-            width,height = computeWandH(bbox_previous[0], detection_kept[0], 0.02)
-            detection_kept[0][2], detection_kept[0][3] = width,height
-        bbox_previous = detection_kept
-        draw_BBox(frame_predict,list(map(int,detection_kept[0])))
-        video_predict.write(frame_predict)
-        centroid_predict = [detection_kept[0][0], detection_kept[0][1]]
-        score.append(np.linalg.norm(np.array(centroid_gt)-np.array(centroid_predict)))
+    detection_kept = detection[0]
+    for i in range(1,len(detection)):
+        if cornerDistance(bbox_previous[0],detection[i][0])<cornerDistance(bbox_previous[0],detection_kept[0]):
+            detection_kept = detection[i]
+        width,height= detection_kept[0][2],detection_kept[0][3]
+        width,height = computeWandH(bbox_previous[0], detection_kept[0], 0.02)
+        detection_kept[0][2], detection_kept[0][3] = width,height
+    bbox_previous = detection_kept
+    draw_BBox(frame_predict,list(map(int,detection_kept[0])))
+    video_predict.write(frame_predict)
+    centroid_predict = [detection_kept[0][0], detection_kept[0][1]]
+    score.append(np.linalg.norm(np.array(centroid_gt)-np.array(centroid_predict)))
 
-    close_video_writer(video_gt)
-    close_video_writer(video_predict)
+close_video_writer(video_gt)
+close_video_writer(video_predict)
 
 
-    x_axe = range(len(frames))
-    plt.figure(figsize=(17, 6))
-    plt.plot(x_axe,score,marker='o',color='g')
-    plt.ylabel('Score')
-    plt.xlabel("Frame")
-    plt.title("Mean Square Error : "+str(np.mean(np.array(score))))
-    plt.grid()
-    plt.legend(['Centroid Distance Score'])
-    plt.savefig(folder.split("/")[0]+'_CentroidEval.png')
-    plt.close()
+x_axe = range(len(frames))
+plt.figure(figsize=(17, 6))
+plt.plot(x_axe,score,marker='o',color='g')
+plt.ylabel('Score')
+plt.xlabel("Frame")
+plt.title("Mean Square Error : "+str(np.mean(np.array(score))))
+plt.grid()
+plt.legend(['Centroid Distance Score'])
+plt.savefig(folder.split("/")[0]+'_CentroidEval.png')
+plt.close()
 
 os.chdir(original_path)
