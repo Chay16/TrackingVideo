@@ -3,7 +3,6 @@ import os
 import numpy as np
 from tqdm import tqdm as tq
 from darkpy import Yolo
-from skimage.measure import regionprops
 import matplotlib.pyplot as plt
 
 ####################### Global Variables #############################
@@ -82,16 +81,6 @@ def draw_BBox(frame,bbox):
     x,y,w,h = bbox
     cv2.rectangle(frame, (x-w//2,y-h//2), (x+w//2,y+h//2), (0,255,0), 2)
     return frame
-
-def centroid_assessment(groundtruth,estimated):
-    a = regionprops(groundtruth)
-    b = regionprops(estimated)
-    return np.linalg.norm(np.array(a[0].centroid)-np.array(b[0].centroid))
-
-
-def evaluate_centroid_dist(gt,predicted):
-    dist = centroid_assessment(gt, predicted)
-    return dist
 
 
 def cornerDistance(previousBBox,currentBBox):
@@ -231,7 +220,7 @@ for i in tq(range(len(frames))):
     video_gt.write(frame_gt)
 
     # YOLO Prediction
-    threshold = 0.15  #""" NEEDS TO BE ADJUST FOR EACH VIDEO """
+    threshold = 0.00001 #""" NEEDS TO BE ADJUST FOR EACH VIDEO """
     detection = detector.detect(frame_predict,threshold)
 
     detection_kept = detection[0]
