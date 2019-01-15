@@ -199,7 +199,7 @@ def close_video_writer(video):
 
 folders = getFolderNames()
 
-folder = "bag/"
+folder = "swan/"
 detector = Yolo()
 
 #for folder in folders:
@@ -231,7 +231,7 @@ for i in tq(range(len(frames))):
     video_gt.write(frame_gt)
 
     # YOLO Prediction
-    threshold = 0.01  #""" NEEDS TO BE ADJUST FOR EACH VIDEO """
+    threshold = 0.05  #""" NEEDS TO BE ADJUST FOR EACH VIDEO """
     detection = detector.detect(frame_predict,threshold)
 
     detection_kept = detection[0]
@@ -239,7 +239,7 @@ for i in tq(range(len(frames))):
         if cornerDistance(bbox_previous[0],detection[i][0])<cornerDistance(bbox_previous[0],detection_kept[0]):
             detection_kept = detection[i]
         width,height= detection_kept[0][2],detection_kept[0][3]
-        width,height = computeWandH(bbox_previous[0], detection_kept[0], 0.02)
+        width,height = computeWandH(bbox_previous[0], detection_kept[0], 0.01)
         detection_kept[0][2], detection_kept[0][3] = width,height
     bbox_previous = detection_kept
     draw_BBox(frame_predict,list(map(int,detection_kept[0])))
