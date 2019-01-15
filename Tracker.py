@@ -199,7 +199,7 @@ def close_video_writer(video):
 
 folders = getFolderNames()
 
-folder = "swan/"
+folder = "book/"
 detector = Yolo()
 
 #for folder in folders:
@@ -231,7 +231,7 @@ for i in tq(range(len(frames))):
     video_gt.write(frame_gt)
 
     # YOLO Prediction
-    threshold = 0.05  #""" NEEDS TO BE ADJUST FOR EACH VIDEO """
+    threshold = 0.15  #""" NEEDS TO BE ADJUST FOR EACH VIDEO """
     detection = detector.detect(frame_predict,threshold)
 
     detection_kept = detection[0]
