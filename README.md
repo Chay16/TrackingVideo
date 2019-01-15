@@ -15,3 +15,6 @@ Create coco.data in darkypy folder as follow :
 classes= 80
 names = YOUR PATH/TrackingVideo/TrackingVideoYOLO/darkpy/coco.names
 eval=coco
+
+In combine9k.data and yolo9000.cfg replace all "/Users/Chayan/Desktop/" with YOUR PATH
+
