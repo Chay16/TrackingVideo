@@ -18,3 +18,4 @@ eval=coco
 
 In combine9k.data and yolo9000.cfg replace all "/Users/Chayan/Desktop/" with YOUR PATH
 
+Our implementation of the GOTURN version is available here : https://colab.research.google.com/drive/1faWd1fuwwL0gBQkDAlj8aNvuX6_s4AmO
